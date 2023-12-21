@@ -17,10 +17,10 @@ require (
 	github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1
 	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348
 	github.com/magiconair/properties v1.7.3
-	github.com/mattn/go-isatty v0.0.3
+	github.com/mattn/go-isatty v0.0.19
 	github.com/mitchellh/mapstructure v0.0.0-20170523030023-d0303fe80992
 	github.com/pelletier/go-toml v1.0.1
-	github.com/pkg/errors v0.8.0
+	github.com/pkg/errors v0.9.1
 	github.com/sean-/zerolog v1.0.1-0.20171010164747-c1a368cd6d13
 	github.com/spf13/afero v0.0.0-20171008182726-e67d870304c4
 	github.com/spf13/cast v1.1.0
@@ -28,9 +28,14 @@ require (
 	github.com/spf13/jwalterweatherman v0.0.0-20170901151539-12bd96e66386
 	github.com/spf13/pflag v1.0.0
 	github.com/spf13/viper v1.0.0
-	golang.org/x/sys v0.0.0-20171013135506-686000749eae
+	golang.org/x/sys v0.12.0
 	golang.org/x/text v0.1.1-0.20171013141220-c01e4764d870
 	gopkg.in/yaml.v2 v2.0.0-20170812160011-eb3733d160e7
 )
 
-replace github.com/rs/zerolog c1a368cd6d1340db64a416421ce1e14c3e5050d3 => github.com/sean-/zerolog v1.0.1-0.20171010164747-c1a368cd6d13
+require (
+	github.com/joyent/pg_prefaulter v0.1.1 // indirect
+	github.com/rs/zerolog v1.31.0 // indirect
+)
+
+// replace github.com/rs/zerolog c1a368cd6d1340db64a416421ce1e14c3e5050d3 => github.com/sean-/zerolog v1.0.1-0.20171010164747-c1a368cd6d13
