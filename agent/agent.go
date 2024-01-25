@@ -16,6 +16,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sys/unix"
 	"os"
 	"os/signal"
 	"sync"
@@ -66,7 +67,7 @@ type Agent struct {
 
 func New(cfg *config.Config) (a *Agent, err error) {
 	a = &Agent{
-		cfg: &cfg.Agent,
+		cfg:             &cfg.Agent,
 		walTranslations: &pg.WALTranslations{},
 	}
 
@@ -294,7 +295,7 @@ func (a *Agent) Wait() error {
 	return nil
 }
 
-func (a *Agent) setWALTranslations() (error) {
+func (a *Agent) setWALTranslations() error {
 	pgDataPath := viper.GetString(config.KeyPGData)
 	pgVersion, err := a.getPostgresVersion(pgDataPath)
 
@@ -412,4 +413,34 @@ func (a *Agent) resetPGConnCtx() {
 // stopSignalHandler disables the signal handler
 func (a *Agent) stopSignalHandler() {
 	signal.Stop(a.signalCh)
+}
+
+func (a *Agent) setupSignals() {
+	// Handle shutdown via a.shutdownCtx
+	a.signalCh = make(chan os.Signal, 10)
+	signal.Notify(a.signalCh, os.Interrupt, unix.SIGTERM, unix.SIGHUP, unix.SIGPIPE)
+
+	a.shutdownCtx, a.shutdown = context.WithCancel(context.Background())
+	a.pgConnCtx, a.pgConnShutdown = context.WithCancel(a.shutdownCtx)
+}
+
+// handleSignals runs the signal handler thread
+func (a *Agent) handleSignals() {
+	for {
+		select {
+		case <-a.shutdownCtx.Done():
+			log.Debug().Msg("Shutting down")
+			return
+		case sig := <-a.signalCh:
+			log.Info().Str("signal", sig.String()).Msg("Received signal")
+			switch sig {
+			case os.Interrupt, unix.SIGTERM:
+				a.shutdown()
+			case unix.SIGPIPE, unix.SIGHUP:
+				// Noop
+			default:
+				panic(fmt.Sprintf("unsupported signal: %v", sig))
+			}
+		}
+	}
 }
