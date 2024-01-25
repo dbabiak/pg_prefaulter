@@ -93,8 +93,8 @@ PGBENCH_ARGS?=-j 64 -P 60 -r -T 900 --no-vacuum --protocol=prepared
 PGBENCH_INIT_ARGS?=-i -s 10 -F 90
 
 GOPATH?=$(shell go env GOPATH)
-PGDATA_PRIMARY?=$(GOPATH)/src/github.com/joyent/pg_prefaulter/.pgdata_primary
-PGDATA_FOLLOWER?=$(GOPATH)/src/github.com/joyent/pg_prefaulter/.pgdata_follower
+PGDATA_PRIMARY?=$(GOPATH)/src/github.com/dbabiak/pg_prefaulter/.pgdata_primary
+PGDATA_FOLLOWER?=$(GOPATH)/src/github.com/dbabiak/pg_prefaulter/.pgdata_follower
 
 PGPRIMARYPORT?=5442
 PGFOLLOWPORT?=5452

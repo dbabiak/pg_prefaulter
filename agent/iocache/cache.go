@@ -20,10 +20,10 @@ import (
 
 	"github.com/bluele/gcache"
 	cgm "github.com/circonus-labs/circonus-gometrics"
-	"github.com/joyent/pg_prefaulter/agent/fhcache"
-	"github.com/joyent/pg_prefaulter/agent/structs"
-	"github.com/joyent/pg_prefaulter/config"
-	"github.com/joyent/pg_prefaulter/lib"
+	"github.com/dbabiak/pg_prefaulter/agent/fhcache"
+	"github.com/dbabiak/pg_prefaulter/agent/structs"
+	"github.com/dbabiak/pg_prefaulter/config"
+	"github.com/dbabiak/pg_prefaulter/lib"
 	log "github.com/rs/zerolog/log"
 )
 

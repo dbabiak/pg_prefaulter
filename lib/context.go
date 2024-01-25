@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/bluele/gcache"
-	"github.com/joyent/pg_prefaulter/config"
+	"github.com/dbabiak/pg_prefaulter/config"
 	log "github.com/rs/zerolog/log"
 )
 

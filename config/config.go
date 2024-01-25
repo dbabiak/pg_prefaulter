@@ -21,9 +21,9 @@ import (
 
 	"github.com/alecthomas/units"
 	cgm "github.com/circonus-labs/circonus-gometrics"
+	"github.com/dbabiak/pg_prefaulter/buildtime"
+	"github.com/dbabiak/pg_prefaulter/pg"
 	"github.com/jackc/pgx"
-	"github.com/joyent/pg_prefaulter/buildtime"
-	"github.com/joyent/pg_prefaulter/pg"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"

@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build darwin || dragonfly || freebsd || linux || netbsd || openbsd
 // +build darwin dragonfly freebsd linux netbsd openbsd
 
 package proc
@@ -25,7 +26,7 @@ import (
 	"strings"
 
 	cgm "github.com/circonus-labs/circonus-gometrics"
-	"github.com/joyent/pg_prefaulter/pg"
+	"github.com/dbabiak/pg_prefaulter/pg"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )

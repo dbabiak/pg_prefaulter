@@ -14,8 +14,8 @@
 package main
 
 import (
-	"github.com/joyent/pg_prefaulter/buildtime"
-	"github.com/joyent/pg_prefaulter/cmd"
+	"github.com/dbabiak/pg_prefaulter/buildtime"
+	"github.com/dbabiak/pg_prefaulter/cmd"
 )
 
 func main() {

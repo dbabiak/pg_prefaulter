@@ -14,8 +14,8 @@
 package agent
 
 import (
-	"github.com/joyent/pg_prefaulter/agent/proc"
-	"github.com/joyent/pg_prefaulter/pg"
+	"github.com/dbabiak/pg_prefaulter/agent/proc"
+	"github.com/dbabiak/pg_prefaulter/pg"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )

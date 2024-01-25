@@ -19,17 +19,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
+	"path"
 	"strconv"
 	"strings"
-	"path"
 	"time"
 
 	"github.com/alecthomas/units"
+	"github.com/dbabiak/pg_prefaulter/agent/metrics"
+	"github.com/dbabiak/pg_prefaulter/agent/proc"
+	"github.com/dbabiak/pg_prefaulter/config"
+	"github.com/dbabiak/pg_prefaulter/pg"
 	"github.com/jackc/pgx"
-	"github.com/joyent/pg_prefaulter/agent/metrics"
-	"github.com/joyent/pg_prefaulter/agent/proc"
-	"github.com/joyent/pg_prefaulter/config"
-	"github.com/joyent/pg_prefaulter/pg"
 	"github.com/pkg/errors"
 	log "github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -473,7 +473,7 @@ func (a *Agent) getPostgresVersion(pgDataPath string) (pgMajor uint64, err error
 
 	var pgVersionString string
 	if first < 10 {
-		second := parts[1];
+		second := parts[1]
 		pgVersionString = fmt.Sprintf("%d%s00", (first * 10), second)
 	} else {
 		pgVersionString = fmt.Sprintf("%d0000", first)

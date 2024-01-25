@@ -22,9 +22,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dbabiak/pg_prefaulter/buildtime"
+	"github.com/dbabiak/pg_prefaulter/config"
 	"github.com/google/gops/agent"
-	"github.com/joyent/pg_prefaulter/buildtime"
-	"github.com/joyent/pg_prefaulter/config"
 	isatty "github.com/mattn/go-isatty"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
