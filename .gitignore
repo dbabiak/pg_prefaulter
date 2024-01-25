@@ -7,3 +7,4 @@ dist/
 *.log
 .cover.out*
 coverage.html
+.idea
