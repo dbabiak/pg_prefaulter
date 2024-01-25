@@ -100,7 +100,7 @@ already loaded into the OS'es filesystem cache.
 				// NOTE(seanc@): Core fields taken from: https:
 				// //www.npmjs.com/package/bunyan#core-fields
 				zerolog.LevelFieldName = "level"
-				zerolog.LogLevelFlags |= zerolog.LogLevelNumeric | zerolog.LogLevelBunyan
+				//zerolog.LogLevelFlags |= zerolog.LogLevelNumeric | zerolog.LogLevelBunyan
 
 				zerolog.TimeFieldFormat = config.LogTimeFormatBunyan
 				zerolog.TimestampFieldName = "time"
