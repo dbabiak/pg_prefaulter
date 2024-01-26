@@ -1,20 +1,28 @@
 package zerolog
 
-import "time"
-import "sync/atomic"
-
-// LogLevelFlag is a bitmask representing flags
-type LogLevelFlag uint
+import (
+	"encoding/json"
+	"strconv"
+	"sync/atomic"
+	"time"
+)
 
 const (
-	// LogLevelNumeric emits an integer for the log level instead of a string.
-	// The default is to emit a string.
-	LogLevelNumeric LogLevelFlag = 1 << iota
+	// TimeFormatUnix defines a time format that makes time fields to be
+	// serialized as Unix timestamp integers.
+	TimeFormatUnix = ""
 
-	// LogLevelBunyan enables Bunyan's numeric error levels if this flag is set.
-	// In order for this feature to be enabled, the LogLevelNumeric bit must also
-	// be set.  https://www.npmjs.com/package/bunyan#levels
-	LogLevelBunyan
+	// TimeFormatUnixMs defines a time format that makes time fields to be
+	// serialized as Unix timestamp integers in milliseconds.
+	TimeFormatUnixMs = "UNIXMS"
+
+	// TimeFormatUnixMicro defines a time format that makes time fields to be
+	// serialized as Unix timestamp integers in microseconds.
+	TimeFormatUnixMicro = "UNIXMICRO"
+
+	// TimeFormatUnixNano defines a time format that makes time fields to be
+	// serialized as Unix timestamp integers in nanoseconds.
+	TimeFormatUnixNano = "UNIXNANO"
 )
 
 var (
@@ -24,15 +32,61 @@ var (
 	// LevelFieldName is the field name used for the level field.
 	LevelFieldName = "level"
 
+	// LevelTraceValue is the value used for the trace level field.
+	LevelTraceValue = "trace"
+	// LevelDebugValue is the value used for the debug level field.
+	LevelDebugValue = "debug"
+	// LevelInfoValue is the value used for the info level field.
+	LevelInfoValue = "info"
+	// LevelWarnValue is the value used for the warn level field.
+	LevelWarnValue = "warn"
+	// LevelErrorValue is the value used for the error level field.
+	LevelErrorValue = "error"
+	// LevelFatalValue is the value used for the fatal level field.
+	LevelFatalValue = "fatal"
+	// LevelPanicValue is the value used for the panic level field.
+	LevelPanicValue = "panic"
+
+	// LevelFieldMarshalFunc allows customization of global level field marshaling.
+	LevelFieldMarshalFunc = func(l Level) string {
+		return l.String()
+	}
+
 	// MessageFieldName is the field name used for the message field.
 	MessageFieldName = "message"
 
 	// ErrorFieldName is the field name used for error fields.
 	ErrorFieldName = "error"
 
-	// TimeFieldFormat defines the time format of the Time field type.
-	// If set to an empty string, the time is formatted as an UNIX timestamp
-	// as integer.
+	// CallerFieldName is the field name used for caller field.
+	CallerFieldName = "caller"
+
+	// CallerSkipFrameCount is the number of stack frames to skip to find the caller.
+	CallerSkipFrameCount = 2
+
+	// CallerMarshalFunc allows customization of global caller marshaling
+	CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		return file + ":" + strconv.Itoa(line)
+	}
+
+	// ErrorStackFieldName is the field name used for error stacks.
+	ErrorStackFieldName = "stack"
+
+	// ErrorStackMarshaler extract the stack from err if any.
+	ErrorStackMarshaler func(err error) interface{}
+
+	// ErrorMarshalFunc allows customization of global error marshaling
+	ErrorMarshalFunc = func(err error) interface{} {
+		return err
+	}
+
+	// InterfaceMarshalFunc allows customization of interface marshaling.
+	// Default: "encoding/json.Marshal"
+	InterfaceMarshalFunc = json.Marshal
+
+	// TimeFieldFormat defines the time format of the Time field type. If set to
+	// TimeFormatUnix, TimeFormatUnixMs, TimeFormatUnixMicro or TimeFormatUnixNano, the time is formatted as a UNIX
+	// timestamp as integer.
 	TimeFieldFormat = time.RFC3339
 
 	// TimestampFunc defines the function called to generate a timestamp.
@@ -46,14 +100,19 @@ var (
 	// set to true.
 	DurationFieldInteger = false
 
-	// LogLevelFlags sets the flags controlling the style in which the log level
-	// is emitted.
-	LogLevelFlags LogLevelFlag
+	// ErrorHandler is called whenever zerolog fails to write an event on its
+	// output. If not set, an error is printed on the stderr. This handler must
+	// be thread safe and non-blocking.
+	ErrorHandler func(err error)
+
+	// DefaultContextLogger is returned from Ctx() if there is no logger associated
+	// with the context.
+	DefaultContextLogger *Logger
 )
 
 var (
-	gLevel          = new(uint32)
-	disableSampling = new(uint32)
+	gLevel          = new(int32)
+	disableSampling = new(int32)
 )
 
 // SetGlobalLevel sets the global override for log level. If this
@@ -61,22 +120,23 @@ var (
 //
 // To globally disable logs, set GlobalLevel to Disabled.
 func SetGlobalLevel(l Level) {
-	atomic.StoreUint32(gLevel, uint32(l))
+	atomic.StoreInt32(gLevel, int32(l))
 }
 
-func globalLevel() Level {
-	return Level(atomic.LoadUint32(gLevel))
+// GlobalLevel returns the current global log level
+func GlobalLevel() Level {
+	return Level(atomic.LoadInt32(gLevel))
 }
 
 // DisableSampling will disable sampling in all Loggers if true.
 func DisableSampling(v bool) {
-	var i uint32
+	var i int32
 	if v {
 		i = 1
 	}
-	atomic.StoreUint32(disableSampling, i)
+	atomic.StoreInt32(disableSampling, i)
 }
 
 func samplingDisabled() bool {
-	return atomic.LoadUint32(disableSampling) == 1
+	return atomic.LoadInt32(disableSampling) == 1
 }

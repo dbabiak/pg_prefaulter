@@ -5,16 +5,42 @@ import (
 	"time"
 )
 
-func AppendTime(dst []byte, t time.Time, format string) []byte {
-	if format == "" {
-		return AppendInt64(dst, t.Unix())
+const (
+	// Import from zerolog/global.go
+	timeFormatUnix      = ""
+	timeFormatUnixMs    = "UNIXMS"
+	timeFormatUnixMicro = "UNIXMICRO"
+	timeFormatUnixNano  = "UNIXNANO"
+)
+
+// AppendTime formats the input time with the given format
+// and appends the encoded string to the input byte slice.
+func (e Encoder) AppendTime(dst []byte, t time.Time, format string) []byte {
+	switch format {
+	case timeFormatUnix:
+		return e.AppendInt64(dst, t.Unix())
+	case timeFormatUnixMs:
+		return e.AppendInt64(dst, t.UnixNano()/1000000)
+	case timeFormatUnixMicro:
+		return e.AppendInt64(dst, t.UnixNano()/1000)
+	case timeFormatUnixNano:
+		return e.AppendInt64(dst, t.UnixNano())
 	}
 	return append(t.AppendFormat(append(dst, '"'), format), '"')
 }
 
-func AppendTimes(dst []byte, vals []time.Time, format string) []byte {
-	if format == "" {
+// AppendTimes converts the input times with the given format
+// and appends the encoded string list to the input byte slice.
+func (Encoder) AppendTimes(dst []byte, vals []time.Time, format string) []byte {
+	switch format {
+	case timeFormatUnix:
 		return appendUnixTimes(dst, vals)
+	case timeFormatUnixMs:
+		return appendUnixNanoTimes(dst, vals, 1000000)
+	case timeFormatUnixMicro:
+		return appendUnixNanoTimes(dst, vals, 1000)
+	case timeFormatUnixNano:
+		return appendUnixNanoTimes(dst, vals, 1)
 	}
 	if len(vals) == 0 {
 		return append(dst, '[', ']')
@@ -38,29 +64,48 @@ func appendUnixTimes(dst []byte, vals []time.Time) []byte {
 	dst = strconv.AppendInt(dst, vals[0].Unix(), 10)
 	if len(vals) > 1 {
 		for _, t := range vals[1:] {
-			dst = strconv.AppendInt(dst, t.Unix(), 10)
+			dst = strconv.AppendInt(append(dst, ','), t.Unix(), 10)
 		}
 	}
 	dst = append(dst, ']')
 	return dst
 }
 
-func AppendDuration(dst []byte, d time.Duration, unit time.Duration, useInt bool) []byte {
-	if useInt {
-		return strconv.AppendInt(dst, int64(d/unit), 10)
-	}
-	return AppendFloat64(dst, float64(d)/float64(unit))
-}
-
-func AppendDurations(dst []byte, vals []time.Duration, unit time.Duration, useInt bool) []byte {
+func appendUnixNanoTimes(dst []byte, vals []time.Time, div int64) []byte {
 	if len(vals) == 0 {
 		return append(dst, '[', ']')
 	}
 	dst = append(dst, '[')
-	dst = AppendDuration(dst, vals[0], unit, useInt)
+	dst = strconv.AppendInt(dst, vals[0].UnixNano()/div, 10)
+	if len(vals) > 1 {
+		for _, t := range vals[1:] {
+			dst = strconv.AppendInt(append(dst, ','), t.UnixNano()/div, 10)
+		}
+	}
+	dst = append(dst, ']')
+	return dst
+}
+
+// AppendDuration formats the input duration with the given unit & format
+// and appends the encoded string to the input byte slice.
+func (e Encoder) AppendDuration(dst []byte, d time.Duration, unit time.Duration, useInt bool) []byte {
+	if useInt {
+		return strconv.AppendInt(dst, int64(d/unit), 10)
+	}
+	return e.AppendFloat64(dst, float64(d)/float64(unit))
+}
+
+// AppendDurations formats the input durations with the given unit & format
+// and appends the encoded string list to the input byte slice.
+func (e Encoder) AppendDurations(dst []byte, vals []time.Duration, unit time.Duration, useInt bool) []byte {
+	if len(vals) == 0 {
+		return append(dst, '[', ']')
+	}
+	dst = append(dst, '[')
+	dst = e.AppendDuration(dst, vals[0], unit, useInt)
 	if len(vals) > 1 {
 		for _, d := range vals[1:] {
-			dst = AppendDuration(append(dst, ','), d, unit, useInt)
+			dst = e.AppendDuration(append(dst, ','), d, unit, useInt)
 		}
 	}
 	dst = append(dst, ']')
